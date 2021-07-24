@@ -1,0 +1,86 @@
+@startuml 
+hide circle
+
+entity "User" as usr {
+    *uesrId
+    --
+    *username
+    *password
+}
+
+entity "User_Role" as usr_rol {
+    *userId
+    *roleId
+    --
+}
+
+entity "Role" as rol {
+    *roleId
+    --
+    *name
+}
+
+entity "Permission" as per {
+    *permissionId
+    --
+    *name
+}
+
+entity "Permission_Role" as per_role {
+    *roleId
+    *permisisonId
+}
+
+entity "Todo" as td {
+    *todoId
+    --
+    *title
+    *isCompleted
+    desc
+    projectId
+}
+
+entity "TodoList" as tdl {
+    *todoListId
+    --
+    *title
+}
+
+entity "TodoList_Todo" as tdl_td {
+    *todoListId
+    *todoId
+}
+
+entity "User_TodoList" as usr_tdl {
+    *userId
+    *todoListId
+}
+
+entity "Project" as prj {
+    *projectId
+    *name
+}
+
+entity "project_User" as prj_usr {
+    *projectId
+    *userId
+}
+
+prj ||..|{ prj_usr
+usr ||..|{ prj_usr
+
+usr ||..|{ usr_rol
+rol ||..|{ usr_rol
+
+rol ||..o{ per_role
+per ||..o{ per_role
+
+usr ||..o{ usr_tdl
+tdl ||..o{ usr_tdl
+
+td ||..|| prj
+
+td ||..o{ tdl_td
+tdl ||..o{ tdl_td
+
+@enduml

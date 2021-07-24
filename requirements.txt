@@ -1,0 +1,35 @@
+sẽ bao gồm các tính năng crud như 1 cái todolist bình thường
+[3:22 PM]
+tuy nhiên bây giờ sẽ phân chia ra từng project, mỗi project sẽ có các user khác nhau
+[3:23 PM]
+các user tối thiểu là admin và user(edited)
+[3:23 PM]
+task admin user không đọc được
+[3:23 PM]
+task user thì admin đọc được
+[3:23 PM]
+phải có đăng ký user name + password
+[3:23 PM]
+hoặc đăng ký bằng social
+[3:24 PM]
+mỗi todo trong đó sẽ có chứa todo thông tin trạng thái và khả năng link với 1 todo khác tuy nhiên không được link với todo của 1 project khác
+[3:25 PM]
+rồi mỗi todo khi được đánh dấu là done, thì sau 1 ngày todo đó sẽ bị clean up
+[3:25 PM]
+đề đó, em hiểu hết k? em có thể chế thêm
+[3:26 PM]
+nhưng cơ bản w những cái ở trên nó sẽ nằm trong 11 bài kia
+[3:26 PM]
+bây h em tự viết lại bằng loopback 4, setup từ đầu bằng cli rồi viết lại
+[3:26 PM]
+ok không?
+[3:27 PM]
+bước 1 là vẽ ERD bằng plantuml của vscode extension
+[3:27 PM]
+bước 2 anh sẽ review data structure
+[3:27 PM]
+bước 3 em code cục này
+[3:27 PM]
+bước 4 em deploy cục này lên 1 VPS của DigitalOcean rồi gửi anh IP anh vào xem
+[3:28 PM]
+bước 5 thì setup CI/CD anh sẽ đưa yêu cầu cụ thể để em nghiên cứu và có video giải thích
