@@ -7,21 +7,21 @@ import {
   getModelSchemaRef,
 } from '@loopback/rest';
 import {
-  Role,
+  Todolist,
   User,
 } from '../models';
-import {RoleRepository} from '../repositories';
+import {TodolistRepository} from '../repositories';
 
-export class RoleUserController {
+export class TodolistUserController {
   constructor(
-    @repository(RoleRepository)
-    public roleRepository: RoleRepository,
+    @repository(TodolistRepository)
+    public todolistRepository: TodolistRepository,
   ) { }
 
-  @get('/roles/{id}/user', {
+  @get('/todolists/{id}/user', {
     responses: {
       '200': {
-        description: 'User belonging to Role',
+        description: 'User belonging to Todolist',
         content: {
           'application/json': {
             schema: {type: 'array', items: getModelSchemaRef(User)},
@@ -31,8 +31,8 @@ export class RoleUserController {
     },
   })
   async getUser(
-    @param.path.number('id') id: typeof Role.prototype.id,
+    @param.path.number('id') id: typeof Todolist.prototype.id,
   ): Promise<User> {
-    return this.roleRepository.user(id);
+    return this.todolistRepository.user(id);
   }
 }

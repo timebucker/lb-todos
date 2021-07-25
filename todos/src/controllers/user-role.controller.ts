@@ -26,26 +26,26 @@ export class UserRoleController {
     @repository(UserRepository) protected userRepository: UserRepository,
   ) { }
 
-  @get('/users/{id}/roles', {
+  @get('/users/{id}/role', {
     responses: {
       '200': {
-        description: 'Array of User has many Role',
+        description: 'User has one Role',
         content: {
           'application/json': {
-            schema: {type: 'array', items: getModelSchemaRef(Role)},
+            schema: getModelSchemaRef(Role),
           },
         },
       },
     },
   })
-  async find(
+  async get(
     @param.path.number('id') id: number,
     @param.query.object('filter') filter?: Filter<Role>,
-  ): Promise<Role[]> {
-    return this.userRepository.roles(id).find(filter);
+  ): Promise<Role> {
+    return this.userRepository.role(id).get(filter);
   }
 
-  @post('/users/{id}/roles', {
+  @post('/users/{id}/role', {
     responses: {
       '200': {
         description: 'User model instance',
@@ -67,10 +67,10 @@ export class UserRoleController {
       },
     }) role: Omit<Role, 'id'>,
   ): Promise<Role> {
-    return this.userRepository.roles(id).create(role);
+    return this.userRepository.role(id).create(role);
   }
 
-  @patch('/users/{id}/roles', {
+  @patch('/users/{id}/role', {
     responses: {
       '200': {
         description: 'User.Role PATCH success count',
@@ -90,10 +90,10 @@ export class UserRoleController {
     role: Partial<Role>,
     @param.query.object('where', getWhereSchemaFor(Role)) where?: Where<Role>,
   ): Promise<Count> {
-    return this.userRepository.roles(id).patch(role, where);
+    return this.userRepository.role(id).patch(role, where);
   }
 
-  @del('/users/{id}/roles', {
+  @del('/users/{id}/role', {
     responses: {
       '200': {
         description: 'User.Role DELETE success count',
@@ -105,6 +105,6 @@ export class UserRoleController {
     @param.path.number('id') id: number,
     @param.query.object('where', getWhereSchemaFor(Role)) where?: Where<Role>,
   ): Promise<Count> {
-    return this.userRepository.roles(id).delete(where);
+    return this.userRepository.role(id).delete(where);
   }
 }

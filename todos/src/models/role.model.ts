@@ -17,8 +17,10 @@ export class Role extends Entity {
   })
   name: string;
 
-  @belongsTo(() => User)
-  userId: number;
+  @property({
+    type: 'number',
+  })
+  userId?: number;
 
   @hasMany(() => Permission)
   permissions: Permission[];

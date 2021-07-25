@@ -16,8 +16,10 @@ export class Permission extends Entity {
   })
   name: string;
 
-  @belongsTo(() => Role)
-  roleId: number;
+  @property({
+    type: 'number',
+  })
+  roleId?: number;
 
   constructor(data?: Partial<Permission>) {
     super(data);

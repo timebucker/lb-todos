@@ -1,4 +1,4 @@
-import {Entity, model, property, belongsTo, hasMany} from '@loopback/repository';
+import {Entity, model, property, belongsTo, hasMany, hasOne} from '@loopback/repository';
 import {Project} from './project.model';
 import {Todolist} from './todolist.model';
 import {Role} from './role.model';
@@ -30,8 +30,8 @@ export class User extends Entity {
   @hasMany(() => Todolist)
   todolists: Todolist[];
 
-  @hasMany(() => Role)
-  roles: Role[];
+  @hasOne(() => Role)
+  role: Role;
 
   constructor(data?: Partial<User>) {
     super(data);

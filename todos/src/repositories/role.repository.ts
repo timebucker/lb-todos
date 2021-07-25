@@ -11,8 +11,6 @@ export class RoleRepository extends DefaultCrudRepository<
   RoleRelations
 > {
 
-  public readonly user: BelongsToAccessor<User, typeof Role.prototype.id>;
-
   public readonly permissions: HasManyRepositoryFactory<Permission, typeof Role.prototype.id>;
 
   constructor(
@@ -21,7 +19,5 @@ export class RoleRepository extends DefaultCrudRepository<
     super(Role, dataSource);
     this.permissions = this.createHasManyRepositoryFactoryFor('permissions', permissionRepositoryGetter,);
     this.registerInclusionResolver('permissions', this.permissions.inclusionResolver);
-    this.user = this.createBelongsToAccessorFor('user', userRepositoryGetter,);
-    this.registerInclusionResolver('user', this.user.inclusionResolver);
   }
 }

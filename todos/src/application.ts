@@ -9,6 +9,21 @@ import {RestApplication} from '@loopback/rest';
 import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
 import {MySequence} from './sequence';
+import {AuthenticationComponent} from '@loopback/authentication';
+import {
+  JWTAuthenticationComponent,
+  SECURITY_SCHEME_SPEC,
+} from '@loopback/authentication-jwt';
+import {
+  UserServiceBindings,
+  PasswordHasherBindings,
+  TokenServiceBindings,
+  TokenServiceConstants
+} from './keys';
+import {DbDataSource} from './datasources';
+import {BcryptHasher} from './services/hash-password';
+import {JWTService} from './services/jwt-service';
+import { MyUserService } from './services/user-service';
 
 export {ApplicationConfig};
 
@@ -40,5 +55,24 @@ export class TodosApplication extends BootMixin(
         nested: true,
       },
     };
+
+    // Mount authentication system
+    this.component(AuthenticationComponent);
+    // Mount jwt component
+    this.component(JWTAuthenticationComponent);
+    // Bind datasource
+    // this.dataSource(DbDataSource, UserServiceBindings.DATASOURCE_NAME);
+  
+    this.bind(UserServiceBindings.USER_SERVICE).toClass(MyUserService);
+    this.bind(PasswordHasherBindings.PASSWORD_HASHER).toClass(BcryptHasher);
+    this.bind(PasswordHasherBindings.ROUNDS).to(10);
+    this.bind(UserServiceBindings.USER_SERVICE).toClass(MyUserService);
+    this.bind(TokenServiceBindings.TOKEN_SERVICE).toClass(JWTService);
+    this.bind(TokenServiceBindings.TOKEN_SECRET).to(
+      TokenServiceConstants.TOKEN_SECRET_VALUE,
+    );
+    this.bind(TokenServiceBindings.TOKEN_EXPIRES_IN).to(
+      TokenServiceConstants.TOKEN_EXPIRES_IN_VALUE,
+    );
   }
 }

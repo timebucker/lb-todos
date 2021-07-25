@@ -1,40 +1,38 @@
 {
-    "ids": {
-      "Todo": 5,
-      "TodoList": 3,
-      "Project": 2,
-      "Permission": 3,
-      "Role": 2,
-      "User": 2
+  "ids": {
+    "Todo": 5,
+    "TodoList": 3,
+    "Project": 2,
+    "Permission": 3,
+    "Role": 2,
+    "User": 1
+  },
+  "models": {
+    "Project": {
+      "0": "{\"name\": \"hcmus\", \"id\":0}",
+      "1": "{\"name\": \"hcmute\", \"id\": 1}"
     },
-    "models": {
-        "Project": {
-            "1": "{\"name\": \"hcmus\"}",
-            "2": "{\"name\": \"hcmute\"}"
-        },
-        "Permission": {
-            "1": "{\"name\":\"read\"}",
-            "2": "{\"name\":\"write\"}",
-            "3": "{\"name\":\"readAll\"}"
-        },
-        "Role": {
-            "1": "{\"name\":\"admin\"}",
-            "2": "{\"name\":\"user\"}"
-        },
-        "User": {
-            "1": "{\"name\": \"Nguyễn Văn A\",\"username\": \"nguyenvana\",\"password\": \"123\"}",
-            "2": "{\"name\": \"Trần Văn B\",\"username\": \"tranvanb\",\"password\": \"456\"}"
-        },
-      "Todo": {
-        "1": "{\"title\":\"Take over the galaxy\",\"desc\":\"MWAHAHAHAHAHAHAHAHAHAHAHAHAMWAHAHAHAHAHAHAHAHAHAHAHAHA\",\"todoListId\":1,\"id\":1}",
-        "2": "{\"title\":\"destroy alderaan\",\"desc\":\"Make sure there are no survivors left!\",\"todoListId\":1,\"id\":2}",
-        "3": "{\"title\":\"play space invaders\",\"desc\":\"Become the very best!\",\"todoListId\":2,\"id\":3}",
-        "4": "{\"title\":\"crush rebel scum\",\"desc\":\"Every.Last.One.\",\"todoListId\":1,\"id\":4}"
-      },
-      "TodoList": {
-        "1": "{\"title\":\"Sith lord's check list\",\"color\":\"blue\",\"id\":1}",
-        "2": "{\"title\":\"My daily chores\",\"color\":\"red\",\"id\":2}"
-      }
+    "Permission": {
+      "0": "{\"name\":\"read\", \"id\":0}",
+      "1": "{\"name\":\"write\", \"id\":1}",
+      "2": "{\"name\":\"readAll\", \"id\":2}"
+    },
+    "Role": {
+      "0": "{\"name\":\"user\", \"id\":0}",
+      "1": "{\"name\":\"admin\", \"id\":1}"
+    },
+    "User": {
+      "0": "{\"username\":\"tete\",\"password\":\"$2a$10$.Wc0OLTiCKA2Rm2DHZUOdeXrCqpJDMwv9V.Ej/y5vLztLb6rnS2sW\",\"projectId\":0,\"id\":0}"
+    },
+    "Todo": {
+      "1": "{\"title\":\"Take over the galaxy\",\"desc\":\"MWAHAHAHAHAHAHAHAHAHAHAHAHAMWAHAHAHAHAHAHAHAHAHAHAHAHA\",\"todoListId\":1,\"id\":1}",
+      "2": "{\"title\":\"destroy alderaan\",\"desc\":\"Make sure there are no survivors left!\",\"todoListId\":1,\"id\":2}",
+      "3": "{\"title\":\"play space invaders\",\"desc\":\"Become the very best!\",\"todoListId\":2,\"id\":3}",
+      "4": "{\"title\":\"crush rebel scum\",\"desc\":\"Every.Last.One.\",\"todoListId\":1,\"id\":4}"
+    },
+    "TodoList": {
+      "1": "{\"title\":\"Sith lord's check list\",\"color\":\"blue\",\"id\":1}",
+      "2": "{\"title\":\"My daily chores\",\"color\":\"red\",\"id\":2}"
     }
   }
-  
+}
