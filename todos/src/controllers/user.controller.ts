@@ -30,7 +30,7 @@ import {
 import {inject} from '@loopback/core';
 import {BcryptHasher} from '../services/hash-password';
 import {JWTService} from '../services/jwt-service'
-import { MyUserProfile } from '../types';
+import { DefineRole, MyUserProfile } from '../types';
 import { validateCredentials } from '../services/validator'
 import * as _ from 'lodash';
 
@@ -186,7 +186,16 @@ export class UserController {
       },
     },
   })
-  async signup(@requestBody() userData: User) {
+  async signup(@requestBody({
+    content: {
+      'application/json': {
+        schema: getModelSchemaRef(User, {
+          title: 'NewUser',
+          exclude: ['id', 'roleId'],
+        }),
+      },
+    },
+  }) userData: Omit<User, 'id'>) {
     validateCredentials(_.pick(userData, ['username', 'password']));
 
     let usr = await this.userRepository.findOne({where: {username: userData.username}})
@@ -194,9 +203,10 @@ export class UserController {
       throw new HttpErrors.UnprocessableEntity('username existed');
     }
 
+    userData.roleId = DefineRole.User
     userData.password = await this.hasher.hashPassword(userData.password);
     const savedUser = await this.userRepository.create(userData);
-    // delete savedUser.password;
+
     return "Signup success";
   }
 

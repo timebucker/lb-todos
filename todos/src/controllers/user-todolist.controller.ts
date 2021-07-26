@@ -45,66 +45,66 @@ export class UserTodolistController {
     return this.userRepository.todolists(id).find(filter);
   }
 
-  @post('/users/{id}/todolists', {
-    responses: {
-      '200': {
-        description: 'User model instance',
-        content: {'application/json': {schema: getModelSchemaRef(Todolist)}},
-      },
-    },
-  })
-  async create(
-    @param.path.number('id') id: typeof User.prototype.id,
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(Todolist, {
-            title: 'NewTodolistInUser',
-            exclude: ['id'],
-            optional: ['userId']
-          }),
-        },
-      },
-    }) todolist: Omit<Todolist, 'id'>,
-  ): Promise<Todolist> {
-    return this.userRepository.todolists(id).create(todolist);
-  }
+  // @post('/users/{id}/todolists', {
+  //   responses: {
+  //     '200': {
+  //       description: 'User model instance',
+  //       content: {'application/json': {schema: getModelSchemaRef(Todolist)}},
+  //     },
+  //   },
+  // })
+  // async create(
+  //   @param.path.number('id') id: typeof User.prototype.id,
+  //   @requestBody({
+  //     content: {
+  //       'application/json': {
+  //         schema: getModelSchemaRef(Todolist, {
+  //           title: 'NewTodolistInUser',
+  //           exclude: ['id'],
+  //           optional: ['userId']
+  //         }),
+  //       },
+  //     },
+  //   }) todolist: Omit<Todolist, 'id'>,
+  // ): Promise<Todolist> {
+  //   return this.userRepository.todolists(id).create(todolist);
+  // }
 
-  @patch('/users/{id}/todolists', {
-    responses: {
-      '200': {
-        description: 'User.Todolist PATCH success count',
-        content: {'application/json': {schema: CountSchema}},
-      },
-    },
-  })
-  async patch(
-    @param.path.number('id') id: number,
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(Todolist, {partial: true}),
-        },
-      },
-    })
-    todolist: Partial<Todolist>,
-    @param.query.object('where', getWhereSchemaFor(Todolist)) where?: Where<Todolist>,
-  ): Promise<Count> {
-    return this.userRepository.todolists(id).patch(todolist, where);
-  }
+  // @patch('/users/{id}/todolists', {
+  //   responses: {
+  //     '200': {
+  //       description: 'User.Todolist PATCH success count',
+  //       content: {'application/json': {schema: CountSchema}},
+  //     },
+  //   },
+  // })
+  // async patch(
+  //   @param.path.number('id') id: number,
+  //   @requestBody({
+  //     content: {
+  //       'application/json': {
+  //         schema: getModelSchemaRef(Todolist, {partial: true}),
+  //       },
+  //     },
+  //   })
+  //   todolist: Partial<Todolist>,
+  //   @param.query.object('where', getWhereSchemaFor(Todolist)) where?: Where<Todolist>,
+  // ): Promise<Count> {
+  //   return this.userRepository.todolists(id).patch(todolist, where);
+  // }
 
-  @del('/users/{id}/todolists', {
-    responses: {
-      '200': {
-        description: 'User.Todolist DELETE success count',
-        content: {'application/json': {schema: CountSchema}},
-      },
-    },
-  })
-  async delete(
-    @param.path.number('id') id: number,
-    @param.query.object('where', getWhereSchemaFor(Todolist)) where?: Where<Todolist>,
-  ): Promise<Count> {
-    return this.userRepository.todolists(id).delete(where);
-  }
+  // @del('/users/{id}/todolists', {
+  //   responses: {
+  //     '200': {
+  //       description: 'User.Todolist DELETE success count',
+  //       content: {'application/json': {schema: CountSchema}},
+  //     },
+  //   },
+  // })
+  // async delete(
+  //   @param.path.number('id') id: number,
+  //   @param.query.object('where', getWhereSchemaFor(Todolist)) where?: Where<Todolist>,
+  // ): Promise<Count> {
+  //   return this.userRepository.todolists(id).delete(where);
+  // }
 }

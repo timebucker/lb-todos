@@ -95,21 +95,21 @@ export class ProjectController {
   //   return this.projectRepository.updateAll(project, where);
   // }
 
-  @get('/projects/{id}')
-  @response(200, {
-    description: 'Project model instance',
-    content: {
-      'application/json': {
-        schema: getModelSchemaRef(Project, {includeRelations: true}),
-      },
-    },
-  })
-  async findById(
-    @param.path.number('id') id: number,
-    @param.filter(Project, {exclude: 'where'}) filter?: FilterExcludingWhere<Project>
-  ): Promise<Project> {
-    return this.projectRepository.findById(id, filter);
-  }
+  // @get('/projects/{id}')
+  // @response(200, {
+  //   description: 'Project model instance',
+  //   content: {
+  //     'application/json': {
+  //       schema: getModelSchemaRef(Project, {includeRelations: true}),
+  //     },
+  //   },
+  // })
+  // async findById(
+  //   @param.path.number('id') id: number,
+  //   @param.filter(Project, {exclude: 'where'}) filter?: FilterExcludingWhere<Project>
+  // ): Promise<Project> {
+  //   return this.projectRepository.findById(id, filter);
+  // }
 
   // @patch('/projects/{id}')
   // @response(204, {
@@ -140,11 +140,11 @@ export class ProjectController {
   //   await this.projectRepository.replaceById(id, project);
   // }
 
-  @del('/projects/{id}')
-  @response(204, {
-    description: 'Project DELETE success',
-  })
-  async deleteById(@param.path.number('id') id: number): Promise<void> {
-    await this.projectRepository.deleteById(id);
-  }
+  // @del('/projects/{id}')
+  // @response(204, {
+  //   description: 'Project DELETE success',
+  // })
+  // async deleteById(@param.path.number('id') id: number): Promise<void> {
+  //   await this.projectRepository.deleteById(id);
+  // }
 }

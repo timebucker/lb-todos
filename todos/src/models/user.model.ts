@@ -24,14 +24,14 @@ export class User extends Entity {
   })
   password: string;
 
+  @property(Number)
+  roleId: number;
+
   @belongsTo(() => Project)
   projectId: number;
 
   @hasMany(() => Todolist)
   todolists: Todolist[];
-
-  @hasOne(() => Role)
-  role: Role;
 
   constructor(data?: Partial<User>) {
     super(data);

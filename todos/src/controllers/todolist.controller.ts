@@ -2,6 +2,7 @@ import {
   Count,
   CountSchema,
   Filter,
+  FilterBuilder,
   FilterExcludingWhere,
   repository,
   Where,
@@ -16,14 +17,23 @@ import {
   del,
   requestBody,
   response,
+  HttpErrors,
 } from '@loopback/rest';
 import {Todolist} from '../models';
 import {TodolistRepository} from '../repositories';
+import {authenticate, AuthenticationBindings} from '@loopback/authentication';
+import { inject } from '@loopback/core';
+import { DefinePermission, DefineRole, MyUserProfile } from '../types';
+import { UserRepository } from '@loopback/authentication-jwt';
 
+@authenticate('jwt')
 export class TodolistController {
   constructor(
     @repository(TodolistRepository)
     public todolistRepository : TodolistRepository,
+
+    @repository(UserRepository)
+    public userRepository : UserRepository,
   ) {}
 
   @post('/todolists')
@@ -32,6 +42,7 @@ export class TodolistController {
     content: {'application/json': {schema: getModelSchemaRef(Todolist)}},
   })
   async create(
+    @inject(AuthenticationBindings.CURRENT_USER) currentUser: MyUserProfile,
     @requestBody({
       content: {
         'application/json': {
@@ -44,19 +55,22 @@ export class TodolistController {
     })
     todolist: Omit<Todolist, 'id'>,
   ): Promise<Todolist> {
+    if (todolist.userId != currentUser.id) {
+      throw new HttpErrors.Forbidden('INVALID ACCESS');
+    }
     return this.todolistRepository.create(todolist);
   }
 
-  @get('/todolists/count')
-  @response(200, {
-    description: 'Todolist model count',
-    content: {'application/json': {schema: CountSchema}},
-  })
-  async count(
-    @param.where(Todolist) where?: Where<Todolist>,
-  ): Promise<Count> {
-    return this.todolistRepository.count(where);
-  }
+  // @get('/todolists/count')
+  // @response(200, {
+  //   description: 'Todolist model count',
+  //   content: {'application/json': {schema: CountSchema}},
+  // })
+  // async count(
+  //   @param.where(Todolist) where?: Where<Todolist>,
+  // ): Promise<Count> {
+  //   return this.todolistRepository.count(where);
+  // }
 
   @get('/todolists')
   @response(200, {
@@ -71,29 +85,37 @@ export class TodolistController {
     },
   })
   async find(
-    @param.filter(Todolist) filter?: Filter<Todolist>,
+    @inject(AuthenticationBindings.CURRENT_USER) currentUser: MyUserProfile,
+    @param.filter(Todolist) filter?: Filter<Todolist>
   ): Promise<Todolist[]> {
-    return this.todolistRepository.find(filter);
+    // return this.todolistRepository.find({where: {userId: currentUser.id}});
+    if (currentUser.permissions.includes(DefinePermission.ReadAll)) {
+      return this.todolistRepository.find(filter)  
+    } else {
+      let adminUsers = await this.userRepository.find({where: {roleId: DefineRole.Admin}})
+      // let userFilter = FilterBuilder()
+      return this.todolistRepository.find(filter);
+    }
   }
 
-  @patch('/todolists')
-  @response(200, {
-    description: 'Todolist PATCH success count',
-    content: {'application/json': {schema: CountSchema}},
-  })
-  async updateAll(
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(Todolist, {partial: true}),
-        },
-      },
-    })
-    todolist: Todolist,
-    @param.where(Todolist) where?: Where<Todolist>,
-  ): Promise<Count> {
-    return this.todolistRepository.updateAll(todolist, where);
-  }
+  // @patch('/todolists')
+  // @response(200, {
+  //   description: 'Todolist PATCH success count',
+  //   content: {'application/json': {schema: CountSchema}},
+  // })
+  // async updateAll(
+  //   @requestBody({
+  //     content: {
+  //       'application/json': {
+  //         schema: getModelSchemaRef(Todolist, {partial: true}),
+  //       },
+  //     },
+  //   })
+  //   todolist: Todolist,
+  //   @param.where(Todolist) where?: Where<Todolist>,
+  // ): Promise<Count> {
+  //   return this.todolistRepository.updateAll(todolist, where);
+  // }
 
   @get('/todolists/{id}')
   @response(200, {
@@ -105,46 +127,56 @@ export class TodolistController {
     },
   })
   async findById(
+    @inject(AuthenticationBindings.CURRENT_USER) currentUser: MyUserProfile,
     @param.path.number('id') id: number,
     @param.filter(Todolist, {exclude: 'where'}) filter?: FilterExcludingWhere<Todolist>
   ): Promise<Todolist> {
+    if (!currentUser.permissions.includes(DefinePermission.ReadAll) && id != currentUser.id) {
+      throw new HttpErrors.Forbidden('INVALID ACCESS');
+    }
     return this.todolistRepository.findById(id, filter);
   }
 
-  @patch('/todolists/{id}')
-  @response(204, {
-    description: 'Todolist PATCH success',
-  })
-  async updateById(
-    @param.path.number('id') id: number,
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(Todolist, {partial: true}),
-        },
-      },
-    })
-    todolist: Todolist,
-  ): Promise<void> {
-    await this.todolistRepository.updateById(id, todolist);
-  }
+  // @patch('/todolists/{id}')
+  // @response(204, {
+  //   description: 'Todolist PATCH success',
+  // })
+  // async updateById(
+  //   @param.path.number('id') id: number,
+  //   @requestBody({
+  //     content: {
+  //       'application/json': {
+  //         schema: getModelSchemaRef(Todolist, {partial: true}),
+  //       },
+  //     },
+  //   })
+  //   todolist: Todolist,
+  // ): Promise<void> {
+  //   await this.todolistRepository.updateById(id, todolist);
+  // }
 
-  @put('/todolists/{id}')
-  @response(204, {
-    description: 'Todolist PUT success',
-  })
-  async replaceById(
-    @param.path.number('id') id: number,
-    @requestBody() todolist: Todolist,
-  ): Promise<void> {
-    await this.todolistRepository.replaceById(id, todolist);
-  }
+  // @put('/todolists/{id}')
+  // @response(204, {
+  //   description: 'Todolist PUT success',
+  // })
+  // async replaceById(
+  //   @param.path.number('id') id: number,
+  //   @requestBody() todolist: Todolist,
+  // ): Promise<void> {
+  //   await this.todolistRepository.replaceById(id, todolist);
+  // }
 
   @del('/todolists/{id}')
   @response(204, {
     description: 'Todolist DELETE success',
   })
-  async deleteById(@param.path.number('id') id: number): Promise<void> {
+  async deleteById(
+    @inject(AuthenticationBindings.CURRENT_USER) currentUser: MyUserProfile,
+    @param.path.number('id') id: number
+    ): Promise<void> {
+      if (id != currentUser.id) {
+        throw new HttpErrors.Forbidden('INVALID ACCESS');
+      }
     await this.todolistRepository.deleteById(id);
   }
 }

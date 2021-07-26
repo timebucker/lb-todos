@@ -1,3 +1,5 @@
+import { authenticate, AuthenticationBindings } from '@loopback/authentication';
+import { inject } from '@loopback/core';
 import {
   Count,
   CountSchema,
@@ -10,6 +12,7 @@ import {
   get,
   getModelSchemaRef,
   getWhereSchemaFor,
+  HttpErrors,
   param,
   patch,
   post,
@@ -20,7 +23,9 @@ import {
   Todo,
 } from '../models';
 import {TodolistRepository} from '../repositories';
+import { MyUserProfile } from '../types';
 
+@authenticate('jwt')
 export class TodolistTodoController {
   constructor(
     @repository(TodolistRepository) protected todolistRepository: TodolistRepository,
@@ -54,6 +59,7 @@ export class TodolistTodoController {
     },
   })
   async create(
+    @inject(AuthenticationBindings.CURRENT_USER) currentUser: MyUserProfile,
     @param.path.number('id') id: typeof Todolist.prototype.id,
     @requestBody({
       content: {
@@ -67,31 +73,34 @@ export class TodolistTodoController {
       },
     }) todo: Omit<Todo, 'id'>,
   ): Promise<Todo> {
+    if (currentUser.id != id) {
+      throw new HttpErrors.Forbidden('INVALID ACCESS');
+    }
     return this.todolistRepository.todos(id).create(todo);
   }
 
-  @patch('/todolists/{id}/todos', {
-    responses: {
-      '200': {
-        description: 'Todolist.Todo PATCH success count',
-        content: {'application/json': {schema: CountSchema}},
-      },
-    },
-  })
-  async patch(
-    @param.path.number('id') id: number,
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(Todo, {partial: true}),
-        },
-      },
-    })
-    todo: Partial<Todo>,
-    @param.query.object('where', getWhereSchemaFor(Todo)) where?: Where<Todo>,
-  ): Promise<Count> {
-    return this.todolistRepository.todos(id).patch(todo, where);
-  }
+  // @patch('/todolists/{id}/todos', {
+  //   responses: {
+  //     '200': {
+  //       description: 'Todolist.Todo PATCH success count',
+  //       content: {'application/json': {schema: CountSchema}},
+  //     },
+  //   },
+  // })
+  // async patch(
+  //   @param.path.number('id') id: number,
+  //   @requestBody({
+  //     content: {
+  //       'application/json': {
+  //         schema: getModelSchemaRef(Todo, {partial: true}),
+  //       },
+  //     },
+  //   })
+  //   todo: Partial<Todo>,
+  //   @param.query.object('where', getWhereSchemaFor(Todo)) where?: Where<Todo>,
+  // ): Promise<Count> {
+  //   return this.todolistRepository.todos(id).patch(todo, where);
+  // }
 
   @del('/todolists/{id}/todos', {
     responses: {
@@ -102,9 +111,13 @@ export class TodolistTodoController {
     },
   })
   async delete(
+    @inject(AuthenticationBindings.CURRENT_USER) currentUser: MyUserProfile,
     @param.path.number('id') id: number,
     @param.query.object('where', getWhereSchemaFor(Todo)) where?: Where<Todo>,
   ): Promise<Count> {
+    if (currentUser.id != id) {
+      throw new HttpErrors.Forbidden('INVALID ACCESS');
+    }
     return this.todolistRepository.todos(id).delete(where);
   }
 }

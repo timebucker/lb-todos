@@ -1,23 +1,17 @@
 import {inject, Getter} from '@loopback/core';
 import {DefaultCrudRepository, repository, BelongsToAccessor, HasManyRepositoryFactory} from '@loopback/repository';
 import {DbDataSource} from '../datasources';
-import {Role, RoleRelations, User, Permission} from '../models';
+import {Role, RoleRelations, User} from '../models';
 import {UserRepository} from './user.repository';
-import {PermissionRepository} from './permission.repository';
 
 export class RoleRepository extends DefaultCrudRepository<
   Role,
   typeof Role.prototype.id,
   RoleRelations
 > {
-
-  public readonly permissions: HasManyRepositoryFactory<Permission, typeof Role.prototype.id>;
-
   constructor(
-    @inject('datasources.db') dataSource: DbDataSource, @repository.getter('UserRepository') protected userRepositoryGetter: Getter<UserRepository>, @repository.getter('PermissionRepository') protected permissionRepositoryGetter: Getter<PermissionRepository>,
+    @inject('datasources.db') dataSource: DbDataSource, @repository.getter('UserRepository') protected userRepositoryGetter: Getter<UserRepository>,
   ) {
     super(Role, dataSource);
-    this.permissions = this.createHasManyRepositoryFactoryFor('permissions', permissionRepositoryGetter,);
-    this.registerInclusionResolver('permissions', this.permissions.inclusionResolver);
   }
 }

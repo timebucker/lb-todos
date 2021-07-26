@@ -4,15 +4,18 @@ import {repository} from '@loopback/repository';
 import {HttpErrors} from '@loopback/rest';
 import {securityId, UserProfile} from '@loopback/security';
 import {PasswordHasherBindings} from '../keys';
-import {Permission, User} from '../models';
-import {Credentials, UserRepository} from '../repositories/user.repository';
+import {User} from '../models';
+import {Credentials, UserRepository, RoleRepository} from '../repositories/';
 import {BcryptHasher} from './hash-password';
-import { MyUserProfile } from '../types';
+import { MyUserProfile, rolePermissions } from '../types';
 
 export class MyUserService implements UserService<User, Credentials> {
   constructor(
     @repository(UserRepository)
     public userRepository: UserRepository,
+
+    @repository(RoleRepository)
+    public roleRepository: RoleRepository,
 
     // @inject('service.hasher')
     @inject(PasswordHasherBindings.PASSWORD_HASHER)
@@ -39,22 +42,12 @@ export class MyUserService implements UserService<User, Credentials> {
   }
 
   convertToUserProfile(user: User): MyUserProfile {
-    let userRole = 0
-    let userPermissions: number[] = []
-    if (user.role) {
-      let role = user.role
-      userRole = role.id!
-      userPermissions = role.permissions.map((per: Permission) => {
-        return per.id!
-      })
-    }
-
     return {
       [securityId]: user.id!.toString(),
       username: user.username,
       id: user.id!,
-      role: userRole,
-      permissions: userPermissions
+      roleId: user.roleId,
+      permissions: rolePermissions(user.roleId)
     };
     // throw new Error('Method not implemented.');
   }

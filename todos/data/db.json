@@ -3,26 +3,21 @@
     "Todo": 5,
     "TodoList": 3,
     "Project": 2,
-    "Permission": 3,
     "Role": 2,
-    "User": 1
+    "User": 4,
+    "Todolist": 2
   },
   "models": {
     "Project": {
       "0": "{\"name\": \"hcmus\", \"id\":0}",
       "1": "{\"name\": \"hcmute\", \"id\": 1}"
     },
-    "Permission": {
-      "0": "{\"name\":\"read\", \"id\":0}",
-      "1": "{\"name\":\"write\", \"id\":1}",
-      "2": "{\"name\":\"readAll\", \"id\":2}"
-    },
     "Role": {
       "0": "{\"name\":\"user\", \"id\":0}",
       "1": "{\"name\":\"admin\", \"id\":1}"
     },
     "User": {
-      "0": "{\"username\":\"tete\",\"password\":\"$2a$10$.Wc0OLTiCKA2Rm2DHZUOdeXrCqpJDMwv9V.Ej/y5vLztLb6rnS2sW\",\"projectId\":0,\"id\":0}"
+      "3": "{\"username\":\"test\",\"password\":\"$2a$10$Sk.Yn7mMyI9hYsbM88PYXecDwDXeKSD27bRDw8zcGzUOV2ZslHqf2\",\"roleId\":0,\"projectId\":0,\"id\":3}"
     },
     "Todo": {
       "1": "{\"title\":\"Take over the galaxy\",\"desc\":\"MWAHAHAHAHAHAHAHAHAHAHAHAHAMWAHAHAHAHAHAHAHAHAHAHAHAHA\",\"todoListId\":1,\"id\":1}",
@@ -33,6 +28,9 @@
     "TodoList": {
       "1": "{\"title\":\"Sith lord's check list\",\"color\":\"blue\",\"id\":1}",
       "2": "{\"title\":\"My daily chores\",\"color\":\"red\",\"id\":2}"
+    },
+    "Todolist": {
+      "1": "{\"title\":\"test1\",\"userId\":0,\"id\":1}"
     }
   }
 }

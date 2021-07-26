@@ -44,12 +44,12 @@ export class JWTService {
       try {
         const decryptedToken = await verifyAsync(token, this.jwtSecret);
         userProfile = Object.assign(
-          {[securityId]: '', id: '', username: '', role: '', permissions: []},
+          {[securityId]: '', id: '', username: '', roleId: '', permissions: []},
           {
             [securityId]: decryptedToken.id,
             id: decryptedToken.id,
             username: decryptedToken.username,
-            role: decryptedToken.role,
+            roleId: decryptedToken.role,
             permissions: decryptedToken.permissions,
           },
         );
