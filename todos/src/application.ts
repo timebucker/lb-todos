@@ -9,7 +9,7 @@ import {RestApplication} from '@loopback/rest';
 import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
 import {MySequence} from './sequence';
-import {AuthenticationComponent} from '@loopback/authentication';
+import {AuthenticationComponent, registerAuthenticationStrategy} from '@loopback/authentication';
 import {
   JWTAuthenticationComponent,
   SECURITY_SCHEME_SPEC,
@@ -24,6 +24,7 @@ import {DbDataSource} from './datasources';
 import {BcryptHasher} from './services/hash-password';
 import {JWTService} from './services/jwt-service';
 import { MyUserService } from './services/user-service';
+import { JWTStrategy } from './auth-strategies/jwt-strategy';
 
 export {ApplicationConfig};
 
@@ -56,10 +57,15 @@ export class TodosApplication extends BootMixin(
       },
     };
 
+    this.addSecuritySpec();
+
     // Mount authentication system
     this.component(AuthenticationComponent);
     // Mount jwt component
-    this.component(JWTAuthenticationComponent);
+    // this.component(JWTAuthenticationComponent);
+
+    registerAuthenticationStrategy(this, JWTStrategy);
+
     // Bind datasource
     // this.dataSource(DbDataSource, UserServiceBindings.DATASOURCE_NAME);
   
@@ -74,5 +80,24 @@ export class TodosApplication extends BootMixin(
     this.bind(TokenServiceBindings.TOKEN_EXPIRES_IN).to(
       TokenServiceConstants.TOKEN_EXPIRES_IN_VALUE,
     );
+  }
+
+  addSecuritySpec(): void {
+    this.api({
+      openapi: '3.0.0',
+      info: {
+        title: 'test application',
+        version: '1.0.0',
+      },
+      paths: {},
+      components: {securitySchemes: SECURITY_SCHEME_SPEC},
+      security: [
+        {
+          // secure all endpoints with 'jwt'
+          jwt: [],
+        },
+      ],
+      servers: [{url: '/'}],
+    });
   }
 }

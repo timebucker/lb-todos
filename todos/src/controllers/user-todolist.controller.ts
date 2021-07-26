@@ -1,3 +1,4 @@
+import { inject } from '@loopback/core';
 import {
   Count,
   CountSchema,
@@ -10,6 +11,7 @@ import {
   get,
   getModelSchemaRef,
   getWhereSchemaFor,
+  HttpErrors,
   param,
   patch,
   post,
@@ -20,10 +22,14 @@ import {
   Todolist,
 } from '../models';
 import {UserRepository} from '../repositories';
+import { DefinePermission, DefineRole, MyUserProfile } from '../types';
+import {SecurityBindings} from '@loopback/security';
 
 export class UserTodolistController {
   constructor(
     @repository(UserRepository) protected userRepository: UserRepository,
+    
+    @inject(SecurityBindings.USER) public currentUser: MyUserProfile
   ) { }
 
   @get('/users/{id}/todolists', {
@@ -42,6 +48,11 @@ export class UserTodolistController {
     @param.path.number('id') id: number,
     @param.query.object('filter') filter?: Filter<Todolist>,
   ): Promise<Todolist[]> {
+    let adminUsers = await this.userRepository.find({where: {roleId: DefineRole.Admin}})
+    let adminIds = adminUsers.map((admin) => { return Number(admin.id) })
+    if (!this.currentUser.permissions.includes(DefinePermission.ReadAll) && adminIds.includes(id)) {
+      throw new HttpErrors.Forbidden('INVALID ACCESS');
+    }
     return this.userRepository.todolists(id).find(filter);
   }
 

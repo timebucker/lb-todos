@@ -191,7 +191,7 @@ export class UserController {
       'application/json': {
         schema: getModelSchemaRef(User, {
           title: 'NewUser',
-          exclude: ['id', 'roleId'],
+          exclude: ['id'],
         }),
       },
     },
@@ -203,7 +203,7 @@ export class UserController {
       throw new HttpErrors.UnprocessableEntity('username existed');
     }
 
-    userData.roleId = DefineRole.User
+    userData.roleId = userData.roleId ?? DefineRole.User
     userData.password = await this.hasher.hashPassword(userData.password);
     const savedUser = await this.userRepository.create(userData);
 
@@ -235,7 +235,7 @@ export class UserController {
         'application/json': {
           schema: getModelSchemaRef(User, {
             title: 'NewTodo',
-            exclude: ['id', 'projectId'],
+            exclude: ['id', 'projectId', 'roleId'],
           }),
         },
       },

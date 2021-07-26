@@ -4,8 +4,8 @@
     "TodoList": 3,
     "Project": 2,
     "Role": 2,
-    "User": 4,
-    "Todolist": 2
+    "User": 6,
+    "Todolist": 3
   },
   "models": {
     "Project": {
@@ -17,7 +17,8 @@
       "1": "{\"name\":\"admin\", \"id\":1}"
     },
     "User": {
-      "3": "{\"username\":\"test\",\"password\":\"$2a$10$Sk.Yn7mMyI9hYsbM88PYXecDwDXeKSD27bRDw8zcGzUOV2ZslHqf2\",\"roleId\":0,\"projectId\":0,\"id\":3}"
+      "3": "{\"username\":\"test\",\"password\":\"$2a$10$Sk.Yn7mMyI9hYsbM88PYXecDwDXeKSD27bRDw8zcGzUOV2ZslHqf2\",\"roleId\":0,\"projectId\":0,\"id\":3}",
+      "4": "{\"username\":\"admin\",\"password\":\"$2a$10$h.D.r/LkGSfmLKK4xNYU6OHLZROOktcDuDhiwWc3kvVF4o5nKGmn.\",\"roleId\":1,\"projectId\":1,\"id\":4}"
     },
     "Todo": {
       "1": "{\"title\":\"Take over the galaxy\",\"desc\":\"MWAHAHAHAHAHAHAHAHAHAHAHAHAMWAHAHAHAHAHAHAHAHAHAHAHAHA\",\"todoListId\":1,\"id\":1}",
@@ -30,7 +31,8 @@
       "2": "{\"title\":\"My daily chores\",\"color\":\"red\",\"id\":2}"
     },
     "Todolist": {
-      "1": "{\"title\":\"test1\",\"userId\":0,\"id\":1}"
+      "1": "{\"title\":\"test1\",\"userId\":0,\"id\":1}",
+      "2": "{\"title\":\"admin-todo\",\"userId\":4,\"id\":2}"
     }
   }
 }

@@ -1,6 +1,6 @@
-import { Principal } from "@loopback/security"
+import { UserProfile } from "@loopback/security"
 
-export interface MyUserProfile extends Principal {
+export interface MyUserProfile extends UserProfile {
     id: number;
     username: String;
     roleId: number;
@@ -8,8 +8,8 @@ export interface MyUserProfile extends Principal {
 }
 
 export const enum DefinePermission {
-    Default =0,
-    ReadAll =1
+    Default = 0,
+    ReadAll = 1
 }
 
 export const enum DefineRole {

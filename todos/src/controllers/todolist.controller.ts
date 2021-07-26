@@ -25,6 +25,8 @@ import {authenticate, AuthenticationBindings} from '@loopback/authentication';
 import { inject } from '@loopback/core';
 import { DefinePermission, DefineRole, MyUserProfile } from '../types';
 import { UserRepository } from '@loopback/authentication-jwt';
+import { Console } from 'console';
+import {SecurityBindings} from '@loopback/security';
 
 @authenticate('jwt')
 export class TodolistController {
@@ -34,6 +36,9 @@ export class TodolistController {
 
     @repository(UserRepository)
     public userRepository : UserRepository,
+
+    @inject(SecurityBindings.USER)
+    public currentUser: MyUserProfile
   ) {}
 
   @post('/todolists')
@@ -42,7 +47,6 @@ export class TodolistController {
     content: {'application/json': {schema: getModelSchemaRef(Todolist)}},
   })
   async create(
-    @inject(AuthenticationBindings.CURRENT_USER) currentUser: MyUserProfile,
     @requestBody({
       content: {
         'application/json': {
@@ -55,7 +59,7 @@ export class TodolistController {
     })
     todolist: Omit<Todolist, 'id'>,
   ): Promise<Todolist> {
-    if (todolist.userId != currentUser.id) {
+    if (todolist.userId != this.currentUser.id) {
       throw new HttpErrors.Forbidden('INVALID ACCESS');
     }
     return this.todolistRepository.create(todolist);
@@ -85,16 +89,16 @@ export class TodolistController {
     },
   })
   async find(
-    @inject(AuthenticationBindings.CURRENT_USER) currentUser: MyUserProfile,
     @param.filter(Todolist) filter?: Filter<Todolist>
   ): Promise<Todolist[]> {
-    // return this.todolistRepository.find({where: {userId: currentUser.id}});
-    if (currentUser.permissions.includes(DefinePermission.ReadAll)) {
+    if (this.currentUser.permissions.includes(DefinePermission.ReadAll)) {
       return this.todolistRepository.find(filter)  
     } else {
       let adminUsers = await this.userRepository.find({where: {roleId: DefineRole.Admin}})
-      // let userFilter = FilterBuilder()
-      return this.todolistRepository.find(filter);
+      let adminIds = adminUsers.map((admin) => { return Number(admin.id) })
+      return (await this.todolistRepository.find(filter)).filter((list) => {
+        return !adminIds.includes(list.userId)
+      })
     }
   }
 
@@ -127,11 +131,13 @@ export class TodolistController {
     },
   })
   async findById(
-    @inject(AuthenticationBindings.CURRENT_USER) currentUser: MyUserProfile,
     @param.path.number('id') id: number,
     @param.filter(Todolist, {exclude: 'where'}) filter?: FilterExcludingWhere<Todolist>
   ): Promise<Todolist> {
-    if (!currentUser.permissions.includes(DefinePermission.ReadAll) && id != currentUser.id) {
+    let adminUsers = await this.userRepository.find({where: {roleId: DefineRole.Admin}})
+    let adminIds = adminUsers.map((admin) => { return Number(admin.id) })
+
+    if (!this.currentUser.permissions.includes(DefinePermission.ReadAll) && adminIds.includes(id)) {
       throw new HttpErrors.Forbidden('INVALID ACCESS');
     }
     return this.todolistRepository.findById(id, filter);
@@ -171,10 +177,9 @@ export class TodolistController {
     description: 'Todolist DELETE success',
   })
   async deleteById(
-    @inject(AuthenticationBindings.CURRENT_USER) currentUser: MyUserProfile,
     @param.path.number('id') id: number
     ): Promise<void> {
-      if (id != currentUser.id) {
+      if (id != this.currentUser.id) {
         throw new HttpErrors.Forbidden('INVALID ACCESS');
       }
     await this.todolistRepository.deleteById(id);
