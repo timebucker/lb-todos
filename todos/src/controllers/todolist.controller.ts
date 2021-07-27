@@ -61,7 +61,7 @@ export class TodolistController {
     })
     todolist: Omit<Todolist, 'id'>,
   ): Promise<Todolist> {
-    if (!todolist.userId) {
+    if (todolist.userId == undefined) {
       todolist.userId = this.currentUser.id
     }
     let owner = await this.userRepository.findById(todolist.userId)
@@ -93,7 +93,8 @@ export class TodolistController {
 
     filter = { ...filter, where: { ...filter?.where, userId: { inq: projectUserIds } } }
 
-    if (this.currentUser.permissions.includes(DefinePermission.ReadAll)) {
+    let currPermissions = this.authorizeService.getPermissions(this.currentUser.roleId)
+    if (currPermissions.includes(DefinePermission.ReadAll)) {
       return this.todolistRepository.find(filter)
     } else {
       let adminUsers = await this.userRepository.find({ where: { roleId: DefineRole.Admin } })
@@ -117,7 +118,10 @@ export class TodolistController {
     @param.path.number('id') id: number,
     @param.filter(Todolist, { exclude: 'where' }) filter?: FilterExcludingWhere<Todolist>
   ): Promise<Todolist> {
-    this.authorizeRequest(id, DefineAuthorizeAction.Read)
+    let isAllow = await this.authorizeRequest(id, DefineAuthorizeAction.Read)
+    if (!isAllow) {
+      throw new HttpErrors.Forbidden('INVALID ACCESS');
+    }
     return this.todolistRepository.findById(id, filter);
   }
 
@@ -128,16 +132,17 @@ export class TodolistController {
   async deleteById(
     @param.path.number('id') id: number
   ): Promise<void> {
-    this.authorizeRequest(id, DefineAuthorizeAction.Write)
-    await this.todolistRepository.deleteById(id);
-  }
-
-  async authorizeRequest(todoListId: number, action: DefineAuthorizeAction) {
-    let todolist = await this.todolistRepository.findById(todoListId)
-    let owner = await this.userRepository.findById(todolist.userId)
-    let isAllow = await this.authorizeService.shouldAllow(this.currentUser, owner, action)
+    let isAllow = await this.authorizeRequest(id, DefineAuthorizeAction.Write)
     if (!isAllow) {
       throw new HttpErrors.Forbidden('INVALID ACCESS');
     }
+    await this.todolistRepository.deleteById(id);
+  }
+
+  async authorizeRequest(todoListId: number, action: DefineAuthorizeAction): Promise<Boolean> {
+    let todolist = await this.todolistRepository.findById(todoListId)
+    let owner = await this.userRepository.findById(todolist.userId)
+    let isAllow = await this.authorizeService.shouldAllow(this.currentUser, owner, action)
+    return isAllow
   }
 }

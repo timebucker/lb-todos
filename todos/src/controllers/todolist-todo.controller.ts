@@ -56,7 +56,10 @@ export class TodolistTodoController {
     @param.path.number('id') id: number,
     @param.query.object('filter') filter?: Filter<Todo>,
   ): Promise<Todo[]> {
-    this.authorizeRequest(id, DefineAuthorizeAction.Read)
+    let isAllow = await this.authorizeRequest(id, DefineAuthorizeAction.Read)
+    if (!isAllow) {
+      throw new HttpErrors.Forbidden('INVALID ACCESS');
+    }
     return this.todolistRepository.todos(id).find(filter);
   }
 
@@ -82,7 +85,10 @@ export class TodolistTodoController {
       },
     }) todo: Omit<Todo, 'id' | 'todolistId'>,
   ): Promise<Todo> {
-    this.authorizeRequest(Number(id), DefineAuthorizeAction.Write)
+    let isAllow = await this.authorizeRequest(Number(id), DefineAuthorizeAction.Write)
+    if (!isAllow) {
+      throw new HttpErrors.Forbidden('INVALID ACCESS');
+    }
     return this.todolistRepository.todos(id).create(todo);
   }
 
@@ -99,16 +105,17 @@ export class TodolistTodoController {
     @param.path.number('id') id: number,
     @param.query.object('where', getWhereSchemaFor(Todo)) where?: Where<Todo>,
   ): Promise<Count> {
-    this.authorizeRequest(id, DefineAuthorizeAction.Write)
-    return this.todolistRepository.todos(id).delete(where);
-  }
-
-  async authorizeRequest(todoListId: number, action: DefineAuthorizeAction) {
-    let todolist = await this.todolistRepository.findById(todoListId)
-    let owner = await this.userRepository.findById(todolist.userId)
-    let isAllow = await this.authorizeService.shouldAllow(this.currentUser, owner, action)
+    let isAllow = await this.authorizeRequest(id, DefineAuthorizeAction.Write)
     if (!isAllow) {
       throw new HttpErrors.Forbidden('INVALID ACCESS');
     }
+    return this.todolistRepository.todos(id).delete(where);
+  }
+
+  async authorizeRequest(todoListId: number, action: DefineAuthorizeAction): Promise<Boolean> {
+    let todolist = await this.todolistRepository.findById(todoListId)
+    let owner = await this.userRepository.findById(todolist.userId)
+    let isAllow = await this.authorizeService.shouldAllow(this.currentUser, owner, action)
+    return isAllow
   }
 }
