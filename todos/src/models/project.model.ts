@@ -19,6 +19,11 @@ export class Project extends Entity {
   @hasMany(() => User)
   users: User[];
 
+  @property({
+    type: 'number',
+  })
+  todoId?: number;
+
   constructor(data?: Partial<Project>) {
     super(data);
   }

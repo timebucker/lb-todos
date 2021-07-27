@@ -23,10 +23,10 @@ import {Todolist} from '../models';
 import {TodolistRepository} from '../repositories';
 import {authenticate, AuthenticationBindings} from '@loopback/authentication';
 import { inject } from '@loopback/core';
-import { DefinePermission, DefineRole, MyUserProfile } from '../types';
+import { MyUserProfile } from '../types';
 import { UserRepository } from '@loopback/authentication-jwt';
-import { Console } from 'console';
 import {SecurityBindings} from '@loopback/security';
+import { DefinePermission, DefineRole } from '../services/authorize-service';
 
 @authenticate('jwt')
 export class TodolistController {
@@ -59,9 +59,21 @@ export class TodolistController {
     })
     todolist: Omit<Todolist, 'id'>,
   ): Promise<Todolist> {
+    if (!todolist.userId) {
+      todolist.userId = this.currentUser.id
+    }
+
+    let owner = await this.userRepository.findById(String(todolist.userId))
+    if (this.currentUser.projectId != owner.projectId 
+      || !this.currentUser.permissions.includes(DefinePermission.WriteAll) 
+    ) {
+      throw new HttpErrors.Forbidden('INVALID ACCESS');
+    } 
+    
     if (todolist.userId != this.currentUser.id) {
       throw new HttpErrors.Forbidden('INVALID ACCESS');
     }
+    
     return this.todolistRepository.create(todolist);
   }
 
@@ -91,14 +103,20 @@ export class TodolistController {
   async find(
     @param.filter(Todolist) filter?: Filter<Todolist>
   ): Promise<Todolist[]> {
+    let projectUserIds = (
+      await this.userRepository.find({where: {projectId: this.currentUser.projectId}})
+    ).map((u) => {return Number(u.id)})
+
+    filter = {...filter, where: {...filter?.where, userId: {inq: projectUserIds}}}
+
     if (this.currentUser.permissions.includes(DefinePermission.ReadAll)) {
-      return this.todolistRepository.find(filter)  
+      return this.todolistRepository.find(filter)
     } else {
       let adminUsers = await this.userRepository.find({where: {roleId: DefineRole.Admin}})
       let adminIds = adminUsers.map((admin) => { return Number(admin.id) })
-      return (await this.todolistRepository.find(filter)).filter((list) => {
-        return !adminIds.includes(list.userId)
-      })
+      
+      filter.where = {and: [{...filter?.where}, {userId: {nin: adminIds}}]}
+      return (await this.todolistRepository.find(filter))
     }
   }
 
@@ -179,9 +197,17 @@ export class TodolistController {
   async deleteById(
     @param.path.number('id') id: number
     ): Promise<void> {
-      if (id != this.currentUser.id) {
+      let todolist = await this.todolistRepository.findById(id)
+      let owner = await this.userRepository.findById(String(todolist.userId))
+      if (!this.currentUser.permissions.includes(DefinePermission.WriteAll) 
+      || !this.currentUser.projectId == owner.projectId) {
         throw new HttpErrors.Forbidden('INVALID ACCESS');
       }
-    await this.todolistRepository.deleteById(id);
+      
+      if (todolist.userId != this.currentUser.id) {
+        throw new HttpErrors.Forbidden('INVALID ACCESS');
+      }
+      
+      await this.todolistRepository.deleteById(id);
   }
 }

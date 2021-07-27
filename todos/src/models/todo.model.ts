@@ -1,5 +1,6 @@
-import {Entity, model, property, belongsTo} from '@loopback/repository';
+import {Entity, model, property, belongsTo, hasOne} from '@loopback/repository';
 import {Todolist} from './todolist.model';
+import {Project} from './project.model';
 
 @model()
 export class Todo extends Entity {
@@ -26,6 +27,11 @@ export class Todo extends Entity {
     type: 'string',
   })
   description?: string;
+
+  @property({
+    type: 'number',
+  })
+  linkProjectId?: number;
 
   @belongsTo(() => Todolist)
   todolistId: number;

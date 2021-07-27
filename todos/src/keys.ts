@@ -3,7 +3,6 @@ import { BindingKey } from '@loopback/core';
 import { PasswordHasher } from './services/hash-password';
 import { Credentials } from './repositories/user.repository';
 import { User } from './models';
-import { MyUserService } from './services';
 
 export namespace TokenServiceConstants {
     export const TOKEN_SECRET_VALUE = '138asda8213';
@@ -34,4 +33,10 @@ export namespace UserServiceBindings {
       'services.user.service',
     );
   }
+
+export namespace AuthorizeServiceBindings {
+  export const AUTRHORIZE_SERVICE = BindingKey.create<any>(
+    'AuthorizeServiceBindings.AUTRHORIZE_SERVICE',
+  );
+}
   

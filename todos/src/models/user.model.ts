@@ -3,7 +3,7 @@ import {Project} from './project.model';
 import {Todolist} from './todolist.model';
 import {Role} from './role.model';
 
-@model()
+@model({ settings: { hiddenProperties: ['password'] } })
 export class User extends Entity {
   @property({
     type: 'number',

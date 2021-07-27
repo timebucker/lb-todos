@@ -19,28 +19,33 @@ import {
   HttpErrors,
   getJsonSchemaRef
 } from '@loopback/rest';
-import {User} from '../models';
-import {UserRepository, Credentials, RoleRepository} from '../repositories';
+import { User } from '../models';
+import { UserRepository, Credentials, RoleRepository } from '../repositories';
 import { MyUserService } from '../services';
 import {
+  AuthorizeServiceBindings,
   PasswordHasherBindings,
   TokenServiceBindings,
   UserServiceBindings,
 } from '../keys';
-import {inject} from '@loopback/core';
-import {BcryptHasher} from '../services/hash-password';
-import {JWTService} from '../services/jwt-service'
-import { DefineRole, MyUserProfile } from '../types';
+import { inject } from '@loopback/core';
+import { BcryptHasher } from '../services/hash-password';
+import { JWTService } from '../services/jwt-service'
+import { MyUserProfile } from '../types';
 import { validateCredentials } from '../services/validator'
 import * as _ from 'lodash';
+import { AuthorizeService, DefineRole } from '../services/authorize-service';
 
 export class UserController {
   constructor(
     @repository(UserRepository)
-    public userRepository : UserRepository,
+    public userRepository: UserRepository,
 
     @repository(RoleRepository)
-    public roleRepository : RoleRepository,
+    public roleRepository: RoleRepository,
+
+    @inject(AuthorizeServiceBindings.AUTRHORIZE_SERVICE)
+    public authorizeService: AuthorizeService,
 
     @inject(PasswordHasherBindings.PASSWORD_HASHER)
     public hasher: BcryptHasher,
@@ -52,7 +57,7 @@ export class UserController {
     // @inject('service.jwt.service')
     @inject(TokenServiceBindings.TOKEN_SERVICE)
     public jwtService: JWTService,
-  ) {}
+  ) { }
 
   // @post('/users')
   // @response(200, {
@@ -86,23 +91,23 @@ export class UserController {
   //   return this.userRepository.count(where);
   // }
 
-  // @get('/users')
-  // @response(200, {
-  //   description: 'Array of User model instances',
-  //   content: {
-  //     'application/json': {
-  //       schema: {
-  //         type: 'array',
-  //         items: getModelSchemaRef(User, {includeRelations: true}),
-  //       },
-  //     },
-  //   },
-  // })
-  // async find(
-  //   @param.filter(User) filter?: Filter<User>,
-  // ): Promise<User[]> {
-  //   return this.userRepository.find(filter);
-  // }
+  @get('/users')
+  @response(200, {
+    description: 'Array of User model instances',
+    content: {
+      'application/json': {
+        schema: {
+          type: 'array',
+          items: getModelSchemaRef(User, { includeRelations: true }),
+        },
+      },
+    },
+  })
+  async find(
+    @param.filter(User) filter?: Filter<User>,
+  ): Promise<User[]> {
+    return this.userRepository.find(filter);
+  }
 
   // @patch('/users')
   // @response(200, {
@@ -181,7 +186,12 @@ export class UserController {
       '200': {
         description: 'User',
         content: {
-          schema: getJsonSchemaRef(User),
+          'application/json': {
+            schema: getModelSchemaRef(User, {
+              title: 'NewUser',
+              exclude: ['password']
+            }),
+          }
         },
       },
     },
@@ -190,15 +200,14 @@ export class UserController {
     content: {
       'application/json': {
         schema: getModelSchemaRef(User, {
-          title: 'NewUser',
-          exclude: ['id'],
-        }),
-      },
-    },
+          exclude: ['id']
+        })
+      }
+    }
   }) userData: Omit<User, 'id'>) {
     validateCredentials(_.pick(userData, ['username', 'password']));
 
-    let usr = await this.userRepository.findOne({where: {username: userData.username}})
+    let usr = await this.userRepository.findOne({ where: { username: userData.username } })
     if (usr) {
       throw new HttpErrors.UnprocessableEntity('username existed');
     }
@@ -206,8 +215,7 @@ export class UserController {
     userData.roleId = userData.roleId ?? DefineRole.User
     userData.password = await this.hasher.hashPassword(userData.password);
     const savedUser = await this.userRepository.create(userData);
-
-    return "Signup success";
+    return savedUser;
   }
 
   @post('/users/login', {
@@ -219,9 +227,12 @@ export class UserController {
             schema: {
               type: 'object',
               properties: {
+                userId: {
+                  type: 'number',
+                },
                 token: {
                   type: 'string',
-                },
+                }
               },
             },
           },
@@ -240,10 +251,13 @@ export class UserController {
         },
       },
     }) credentials: Credentials,
-  ): Promise<{token: string}> {
+  ): Promise<{ token: string }> {
     const user = await this.userService.verifyCredentials(credentials);
     const userProfile = await this.userService.convertToUserProfile(user);
+    let permissions = await this.authorizeService.getPermissions(userProfile.roleId)
+    userProfile.permissions = permissions
+
     const token = await this.jwtService.generateToken(userProfile);
-    return Promise.resolve({token: token});
+    return Promise.resolve({ userId: userProfile.id, token: token });
   }
 }

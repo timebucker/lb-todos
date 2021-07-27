@@ -18,13 +18,15 @@ import {
   UserServiceBindings,
   PasswordHasherBindings,
   TokenServiceBindings,
-  TokenServiceConstants
+  TokenServiceConstants,
+  AuthorizeServiceBindings
 } from './keys';
 import {DbDataSource} from './datasources';
 import {BcryptHasher} from './services/hash-password';
 import {JWTService} from './services/jwt-service';
 import { MyUserService } from './services/user-service';
 import { JWTStrategy } from './auth-strategies/jwt-strategy';
+import { AuthorizeService } from './services/authorize-service';
 
 export {ApplicationConfig};
 
@@ -80,6 +82,8 @@ export class TodosApplication extends BootMixin(
     this.bind(TokenServiceBindings.TOKEN_EXPIRES_IN).to(
       TokenServiceConstants.TOKEN_EXPIRES_IN_VALUE,
     );
+    
+    this.bind(AuthorizeServiceBindings.AUTRHORIZE_SERVICE).toClass(AuthorizeService)
   }
 
   addSecuritySpec(): void {

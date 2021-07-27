@@ -1,3 +1,4 @@
+import { authenticate } from '@loopback/authentication';
 import {
   Count,
   CountSchema,
@@ -17,14 +18,15 @@ import {
   requestBody,
   response,
 } from '@loopback/rest';
-import {Todo} from '../models';
-import {TodoRepository} from '../repositories';
+import { Todo } from '../models';
+import { TodoRepository } from '../repositories';
 
+@authenticate('jwt')
 export class TodoController {
   constructor(
     @repository(TodoRepository)
-    public todoRepository : TodoRepository,
-  ) {}
+    public todoRepository: TodoRepository,
+  ) { }
 
   // @post('/todos')
   // @response(200, {
@@ -46,6 +48,33 @@ export class TodoController {
   // ): Promise<Todo> {
   //   return this.todoRepository.create(todo);
   // }
+
+  @post('/todos/set-complete')
+  @response(200, {
+    description: 'Todo model instance',
+    content: { 'application/json': { schema: getModelSchemaRef(Todo) } },
+  })
+  async create(
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: {
+            required: ['id'],
+            properties: {
+              id: {type: 'number'}
+            },
+          },
+        },
+      },
+    })
+    todoId: Number,
+  ): Promise<Todo> {
+
+    let todo = await this.todoRepository.findById(todoId.valueOf())
+    todo.isCompleted = true
+    return this.todoRepository.save(todo)
+    return this.todoRepository.create(todo);
+  }
 
   // @get('/todos/count')
   // @response(200, {

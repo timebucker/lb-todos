@@ -1,11 +1,10 @@
 {
   "ids": {
-    "Todo": 5,
-    "TodoList": 3,
+    "Todo": 0,
     "Project": 2,
     "Role": 2,
     "User": 6,
-    "Todolist": 3
+    "Todolist": 6
   },
   "models": {
     "Project": {
@@ -17,22 +16,21 @@
       "1": "{\"name\":\"admin\", \"id\":1}"
     },
     "User": {
-      "3": "{\"username\":\"test\",\"password\":\"$2a$10$Sk.Yn7mMyI9hYsbM88PYXecDwDXeKSD27bRDw8zcGzUOV2ZslHqf2\",\"roleId\":0,\"projectId\":0,\"id\":3}",
-      "4": "{\"username\":\"admin\",\"password\":\"$2a$10$h.D.r/LkGSfmLKK4xNYU6OHLZROOktcDuDhiwWc3kvVF4o5nKGmn.\",\"roleId\":1,\"projectId\":1,\"id\":4}"
+      "0": "{\"username\":\"admin1\",\"password\":\"$2a$10$Sk.Yn7mMyI9hYsbM88PYXecDwDXeKSD27bRDw8zcGzUOV2ZslHqf2\",\"roleId\":1,\"projectId\":0,\"id\":0}",
+      "1": "{\"username\":\"user1\",\"password\":\"$2a$10$h.D.r/LkGSfmLKK4xNYU6OHLZROOktcDuDhiwWc3kvVF4o5nKGmn.\",\"roleId\":0,\"projectId\":0,\"id\":1}",
+      "2": "{\"username\":\"admin2\",\"password\":\"$2a$10$Sk.Yn7mMyI9hYsbM88PYXecDwDXeKSD27bRDw8zcGzUOV2ZslHqf2\",\"roleId\":1,\"projectId\":1,\"id\":2}",
+      "3": "{\"username\":\"user2\",\"password\":\"$2a$10$h.D.r/LkGSfmLKK4xNYU6OHLZROOktcDuDhiwWc3kvVF4o5nKGmn.\",\"roleId\":0,\"projectId\":1,\"id\":3}",
+      "4": "{\"username\":\"user22\",\"password\":\"$2a$10$h.D.r/LkGSfmLKK4xNYU6OHLZROOktcDuDhiwWc3kvVF4o5nKGmn.\",\"roleId\":0,\"projectId\":1,\"id\":4}",
+      "5": "{\"username\":\"user12\",\"password\":\"$2a$10$Q/o60AUPHYnqIaGN75vH9.5Hj18cbtTYsB/phhGyoBVd1MpWNO1G6\",\"roleId\":0,\"projectId\":0,\"id\":5}"
     },
-    "Todo": {
-      "1": "{\"title\":\"Take over the galaxy\",\"desc\":\"MWAHAHAHAHAHAHAHAHAHAHAHAHAMWAHAHAHAHAHAHAHAHAHAHAHAHA\",\"todoListId\":1,\"id\":1}",
-      "2": "{\"title\":\"destroy alderaan\",\"desc\":\"Make sure there are no survivors left!\",\"todoListId\":1,\"id\":2}",
-      "3": "{\"title\":\"play space invaders\",\"desc\":\"Become the very best!\",\"todoListId\":2,\"id\":3}",
-      "4": "{\"title\":\"crush rebel scum\",\"desc\":\"Every.Last.One.\",\"todoListId\":1,\"id\":4}"
-    },
-    "TodoList": {
-      "1": "{\"title\":\"Sith lord's check list\",\"color\":\"blue\",\"id\":1}",
-      "2": "{\"title\":\"My daily chores\",\"color\":\"red\",\"id\":2}"
-    },
+    "Todo": {},
     "Todolist": {
-      "1": "{\"title\":\"test1\",\"userId\":0,\"id\":1}",
-      "2": "{\"title\":\"admin-todo\",\"userId\":4,\"id\":2}"
+      "0": "{\"title\":\"admin1-tdl\",\"userId\":0,\"id\":0}",
+      "1": "{\"title\":\"user1-tdl\",\"userId\":1,\"id\":1}",
+      "2": "{\"title\":\"user12-tdl\",\"userId\":5,\"id\":2}",
+      "3": "{\"title\":\"user2\",\"userId\":3,\"id\":3}",
+      "4": "{\"title\":\"admin2-tdl\",\"userId\":2,\"id\":4}",
+      "5": "{\"title\":\"user2-tdl\",\"userId\":3,\"id\":5}"
     }
   }
 }

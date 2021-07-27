@@ -21,10 +21,13 @@ import {
   User,
   Todolist,
 } from '../models';
-import {UserRepository} from '../repositories';
-import { DefinePermission, DefineRole, MyUserProfile } from '../types';
+import { UserRepository} from '../repositories';
+import { MyUserProfile } from '../types';
 import {SecurityBindings} from '@loopback/security';
+import { DefinePermission, DefineRole } from '../services/authorize-service';
+import { authenticate, AuthenticationBindings } from '@loopback/authentication';
 
+@authenticate('jwt')
 export class UserTodolistController {
   constructor(
     @repository(UserRepository) protected userRepository: UserRepository,
@@ -48,11 +51,26 @@ export class UserTodolistController {
     @param.path.number('id') id: number,
     @param.query.object('filter') filter?: Filter<Todolist>,
   ): Promise<Todolist[]> {
-    let adminUsers = await this.userRepository.find({where: {roleId: DefineRole.Admin}})
-    let adminIds = adminUsers.map((admin) => { return Number(admin.id) })
-    if (!this.currentUser.permissions.includes(DefinePermission.ReadAll) && adminIds.includes(id)) {
+    let queryProjectId = (await this.userRepository.findById(id)).projectId
+
+    let adminIds = (
+      await this.userRepository.find({where: {roleId: DefineRole.Admin}})
+    ).map((admin) => { return Number(admin.id) })
+
+    if (this.currentUser.projectId != queryProjectId) {
+      // user can not view from others project
       throw new HttpErrors.Forbidden('INVALID ACCESS');
     }
+
+    // process for admin query
+    if (adminIds.includes(id)) {
+      if (this.currentUser.permissions.includes(DefinePermission.ReadAll)) {
+        return this.userRepository.todolists(id).find(filter)
+      } else {
+        throw new HttpErrors.Forbidden('INVALID ACCESS');
+      }
+    }
+
     return this.userRepository.todolists(id).find(filter);
   }
 

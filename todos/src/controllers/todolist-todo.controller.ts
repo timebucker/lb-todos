@@ -18,17 +18,22 @@ import {
   post,
   requestBody,
 } from '@loopback/rest';
+import { AuthorizeServiceBindings } from '../keys';
 import {
   Todolist,
   Todo,
 } from '../models';
-import {TodolistRepository} from '../repositories';
+import { TodolistRepository } from '../repositories';
+import { AuthorizeService, DefinePermission } from '../services';
 import { MyUserProfile } from '../types';
 
 @authenticate('jwt')
 export class TodolistTodoController {
+  userRepository: any;
   constructor(
     @repository(TodolistRepository) protected todolistRepository: TodolistRepository,
+
+    @inject(AuthenticationBindings.CURRENT_USER) public currentUser: MyUserProfile
   ) { }
 
   @get('/todolists/{id}/todos', {
@@ -37,7 +42,7 @@ export class TodolistTodoController {
         description: 'Array of Todolist has many Todo',
         content: {
           'application/json': {
-            schema: {type: 'array', items: getModelSchemaRef(Todo)},
+            schema: { type: 'array', items: getModelSchemaRef(Todo) },
           },
         },
       },
@@ -47,6 +52,18 @@ export class TodolistTodoController {
     @param.path.number('id') id: number,
     @param.query.object('filter') filter?: Filter<Todo>,
   ): Promise<Todo[]> {
+    let todolist = await this.todolistRepository.findById(id)
+    let owner = await this.userRepository.findById(String(todolist.userId))
+    if (this.currentUser.projectId != owner.projectId
+      || !this.currentUser.permissions.includes(DefinePermission.WriteAll)
+    ) {
+      throw new HttpErrors.Forbidden('INVALID ACCESS');
+    }
+
+    if (todolist.userId != this.currentUser.id) {
+      throw new HttpErrors.Forbidden('INVALID ACCESS');
+    }
+
     return this.todolistRepository.todos(id).find(filter);
   }
 
@@ -54,7 +71,7 @@ export class TodolistTodoController {
     responses: {
       '200': {
         description: 'Todolist model instance',
-        content: {'application/json': {schema: getModelSchemaRef(Todo)}},
+        content: { 'application/json': { schema: getModelSchemaRef(Todo) } },
       },
     },
   })
@@ -66,14 +83,22 @@ export class TodolistTodoController {
         'application/json': {
           schema: getModelSchemaRef(Todo, {
             title: 'NewTodoInTodolist',
-            exclude: ['id'],
-            optional: ['todolistId']
+            exclude: ['id', 'todolistId']
+            // optional: ['todolistId']
           }),
         },
       },
-    }) todo: Omit<Todo, 'id'>,
+    }) todo: Omit<Todo, 'id' | 'todolistId'>,
   ): Promise<Todo> {
-    if (currentUser.id != id) {
+    let todolist = await this.todolistRepository.findById(id)
+    let owner = await this.userRepository.findById(String(todolist.userId))
+    if (this.currentUser.projectId != owner.projectId
+      || !this.currentUser.permissions.includes(DefinePermission.WriteAll)
+    ) {
+      throw new HttpErrors.Forbidden('INVALID ACCESS');
+    }
+
+    if (todolist.userId != this.currentUser.id) {
       throw new HttpErrors.Forbidden('INVALID ACCESS');
     }
     return this.todolistRepository.todos(id).create(todo);
@@ -106,7 +131,7 @@ export class TodolistTodoController {
     responses: {
       '200': {
         description: 'Todolist.Todo DELETE success count',
-        content: {'application/json': {schema: CountSchema}},
+        content: { 'application/json': { schema: CountSchema } },
       },
     },
   })
@@ -115,9 +140,17 @@ export class TodolistTodoController {
     @param.path.number('id') id: number,
     @param.query.object('where', getWhereSchemaFor(Todo)) where?: Where<Todo>,
   ): Promise<Count> {
-    if (currentUser.id != id) {
+    let todolist = await this.todolistRepository.findById(id)
+    let owner = await this.userRepository.findById(String(todolist.userId))
+    if (!this.currentUser.permissions.includes(DefinePermission.WriteAll)
+      || !this.currentUser.projectId == owner.projectId) {
       throw new HttpErrors.Forbidden('INVALID ACCESS');
     }
+
+    if (todolist.userId != this.currentUser.id) {
+      throw new HttpErrors.Forbidden('INVALID ACCESS');
+    }
+
     return this.todolistRepository.todos(id).delete(where);
   }
 }

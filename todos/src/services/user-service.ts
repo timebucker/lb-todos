@@ -3,11 +3,11 @@ import {inject} from '@loopback/core';
 import {repository} from '@loopback/repository';
 import {HttpErrors} from '@loopback/rest';
 import {securityId, UserProfile} from '@loopback/security';
-import {PasswordHasherBindings} from '../keys';
+import {AuthorizeServiceBindings, PasswordHasherBindings} from '../keys';
 import {User} from '../models';
 import {Credentials, UserRepository, RoleRepository} from '../repositories/';
 import {BcryptHasher} from './hash-password';
-import { MyUserProfile, rolePermissions } from '../types';
+import { MyUserProfile } from '../types';
 
 export class MyUserService implements UserService<User, Credentials> {
   constructor(
@@ -45,10 +45,21 @@ export class MyUserService implements UserService<User, Credentials> {
     return {
       [securityId]: user.id!.toString(),
       username: user.username,
+      projectId: user.projectId,
       id: user.id!,
       roleId: user.roleId,
-      permissions: rolePermissions(user.roleId)
+      permissions: []
     };
-    // throw new Error('Method not implemented.');
   }
+
+  // convertToUserProfile(user: User): MyUserProfile {
+  //   return {
+  //     [securityId]: user.id!.toString(),
+  //     username: user.username,
+  //     id: user.id!,
+  //     roleId: user.roleId,
+  //     permissions: rolePermissions(user.roleId)
+  //   };
+  //   // throw new Error('Method not implemented.');
+  // }
 }
