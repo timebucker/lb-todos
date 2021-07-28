@@ -4,7 +4,7 @@ import {
   RestExplorerBindings,
   RestExplorerComponent,
 } from '@loopback/rest-explorer';
-import {RepositoryMixin} from '@loopback/repository';
+import {RepositoryMixin, SchemaMigrationOptions} from '@loopback/repository';
 import {RestApplication} from '@loopback/rest';
 import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
@@ -17,6 +17,7 @@ import {DbDataSource} from './datasources';
 import {CronComponent} from '@loopback/cron';
 import { MyJWTAuthenticationComponent } from './components/jwt-authentication';
 import { MyAuthorizationComponent } from './components/authorization/authorization-component';
+import { ProjectRepository, RoleRepository, TodolistRepository, TodoRepository, UserRepository } from './repositories';
 
 export {ApplicationConfig};
 
@@ -79,4 +80,27 @@ export class TodosApplication extends BootMixin(
       servers: [{url: '/'}],
     });
   }
+
+  // async migrateSchema(options?: SchemaMigrationOptions) {
+  //   await super.migrateSchema(options);
+
+  //   const projectRepo = await this.getRepository(ProjectRepository);
+  //   projectRepo.create({name: "hcmus"})
+  //   projectRepo.create({name: "hcmute"})
+
+  //   const roleRepo = await this.getRepository(RoleRepository);
+  //   roleRepo.create({name:"user"})
+  //   roleRepo.create({name:"admin"})
+
+  //   const userRepo = await this.getRepository(UserRepository);
+  //   userRepo.create({username:"admin1",password:"$2a$10$Sk.Yn7mMyI9hYsbM88PYXecDwDXeKSD27bRDw8zcGzUOV2ZslHqf2",roleId:1,projectId:0})
+  //   userRepo.create({username:"user1",password:"$2a$10$Sk.Yn7mMyI9hYsbM88PYXecDwDXeKSD27bRDw8zcGzUOV2ZslHqf2",roleId:0,projectId:0})
+  //   userRepo.create({username:"admin2",password:"$2a$10$Sk.Yn7mMyI9hYsbM88PYXecDwDXeKSD27bRDw8zcGzUOV2ZslHqf2",roleId:1,projectId:1})
+  //   userRepo.create({username:"user2",password:"$2a$10$Sk.Yn7mMyI9hYsbM88PYXecDwDXeKSD27bRDw8zcGzUOV2ZslHqf2",roleId:0,projectId:1})
+    
+  //   const todolistRepo = await this.getRepository(TodolistRepository);
+  //   todolistRepo.create({title:"admin1-tdl",userId:0})
+
+  //   const todoRepo = await this.getRepository(TodoRepository);
+  // }
 }
