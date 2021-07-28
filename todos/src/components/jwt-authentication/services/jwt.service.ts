@@ -50,7 +50,7 @@ export class JWTService {
             id: decryptedToken.id,
             username: decryptedToken.username,
             projectId: decryptedToken.projectId,
-            roleId: decryptedToken.role
+            roleId: decryptedToken.roleId
           },
         );
       } catch (err) {
