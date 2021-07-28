@@ -20,10 +20,10 @@ import {
   response,
   HttpErrors,
 } from '@loopback/rest';
-import { AuthorizeServiceBindings } from '../keys';
+import { AuthorizeServiceBindings } from '../components/authorization';
 import { Todo } from '../models';
 import { TodolistRepository, TodoRepository, UserRepository } from '../repositories';
-import { AuthorizeService, DefineAuthorizeAction, DefinePermission } from '../services';
+import { AuthorizeService, DefineAuthorizeAction, DefinePermission } from '../components/authorization';
 import { MyUserProfile } from '../types';
 
 @authenticate('jwt')

@@ -1,5 +1,5 @@
-import { User } from "../models"
-import { MyUserProfile } from "../types"
+import { User } from "../../models"
+import { MyUserProfile } from "../../types"
 
 export const enum DefinePermission {
     Default = 0,

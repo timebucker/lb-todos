@@ -9,25 +9,14 @@ import {RestApplication} from '@loopback/rest';
 import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
 import {MySequence} from './sequence';
-import {AuthenticationComponent, registerAuthenticationStrategy} from '@loopback/authentication';
+import {AuthenticationComponent} from '@loopback/authentication';
 import {
-  JWTAuthenticationComponent,
   SECURITY_SCHEME_SPEC,
 } from '@loopback/authentication-jwt';
-import {
-  UserServiceBindings,
-  PasswordHasherBindings,
-  TokenServiceBindings,
-  TokenServiceConstants,
-  AuthorizeServiceBindings
-} from './keys';
 import {DbDataSource} from './datasources';
-import {BcryptHasher} from './services/hash-password';
-import {JWTService} from './services/jwt-service';
-import { MyUserService } from './services/user-service';
-import { JWTStrategy } from './auth-strategies/jwt-strategy';
-import { AuthorizeService } from './services/authorize-service';
 import {CronComponent} from '@loopback/cron';
+import { MyJWTAuthenticationComponent } from './components/jwt-authentication';
+import { MyAuthorizationComponent } from './components/authorization/authorization-component';
 
 export {ApplicationConfig};
 
@@ -64,28 +53,12 @@ export class TodosApplication extends BootMixin(
 
     // Mount authentication system
     this.component(AuthenticationComponent);
-    // Mount jwt component
-    // this.component(JWTAuthenticationComponent);
+    this.component(MyJWTAuthenticationComponent);
+    this.component(MyAuthorizationComponent);
     this.component(CronComponent);
-
-    registerAuthenticationStrategy(this, JWTStrategy);
 
     // Bind datasource
     // this.dataSource(DbDataSource, UserServiceBindings.DATASOURCE_NAME);
-  
-    this.bind(UserServiceBindings.USER_SERVICE).toClass(MyUserService);
-    this.bind(PasswordHasherBindings.PASSWORD_HASHER).toClass(BcryptHasher);
-    this.bind(PasswordHasherBindings.ROUNDS).to(10);
-    this.bind(UserServiceBindings.USER_SERVICE).toClass(MyUserService);
-    this.bind(TokenServiceBindings.TOKEN_SERVICE).toClass(JWTService);
-    this.bind(TokenServiceBindings.TOKEN_SECRET).to(
-      TokenServiceConstants.TOKEN_SECRET_VALUE,
-    );
-    this.bind(TokenServiceBindings.TOKEN_EXPIRES_IN).to(
-      TokenServiceConstants.TOKEN_EXPIRES_IN_VALUE,
-    );
-    
-    this.bind(AuthorizeServiceBindings.AUTRHORIZE_SERVICE).toClass(AuthorizeService)
   }
 
   addSecuritySpec(): void {

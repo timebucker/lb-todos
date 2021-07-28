@@ -3,11 +3,11 @@ import {inject} from '@loopback/core';
 import {repository} from '@loopback/repository';
 import {HttpErrors} from '@loopback/rest';
 import {securityId, UserProfile} from '@loopback/security';
-import {AuthorizeServiceBindings, PasswordHasherBindings} from '../keys';
-import {User} from '../models';
-import {Credentials, UserRepository, RoleRepository} from '../repositories/';
+import {PasswordHasherBindings} from '../keys';
+import { User } from '../../../models';
+import {Credentials, UserRepository, RoleRepository} from '../../../repositories/';
 import {BcryptHasher} from './hash-password';
-import { MyUserProfile } from '../types';
+import { MyUserProfile } from '../../../types';
 
 export class MyUserService implements UserService<User, Credentials> {
   constructor(

@@ -24,9 +24,9 @@ import {
 import { UserRepository} from '../repositories';
 import { MyUserProfile } from '../types';
 import {SecurityBindings} from '@loopback/security';
-import { AuthorizeService, DefineAuthorizeAction, DefinePermission, DefineRole } from '../services/authorize-service';
+import { AuthorizeService, DefineAuthorizeAction, DefinePermission, DefineRole } from '../components/authorization/authorize-service';
 import { authenticate, AuthenticationBindings } from '@loopback/authentication';
-import { AuthorizeServiceBindings } from '../keys';
+import { AuthorizeServiceBindings } from '../components/authorization';
 
 @authenticate('jwt')
 export class UserTodolistController {

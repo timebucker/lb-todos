@@ -1,6 +1,5 @@
 import {HttpErrors} from '@loopback/rest';
 import {Credentials} from '../repositories/index';
-import { UserRepository } from '../repositories/user.repository';
 
 export function validateCredentials(credentials: Credentials) {
   if (!credentials.username) {

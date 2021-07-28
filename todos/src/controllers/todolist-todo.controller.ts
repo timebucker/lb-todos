@@ -18,13 +18,13 @@ import {
   post,
   requestBody,
 } from '@loopback/rest';
-import { AuthorizeServiceBindings } from '../keys';
+import { AuthorizeServiceBindings } from '../components/authorization';
 import {
   Todolist,
   Todo,
 } from '../models';
 import { TodolistRepository, UserRepository } from '../repositories';
-import { AuthorizeService, DefineAuthorizeAction, DefinePermission } from '../services';
+import { AuthorizeService, DefineAuthorizeAction, DefinePermission } from '../components/authorization';
 import { MyUserProfile } from '../types';
 
 @authenticate('jwt')

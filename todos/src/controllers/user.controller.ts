@@ -21,20 +21,19 @@ import {
 } from '@loopback/rest';
 import { User } from '../models';
 import { UserRepository, Credentials, RoleRepository } from '../repositories';
-import { MyUserService } from '../services';
+import { MyUserService } from '../components/jwt-authentication';
 import {
-  AuthorizeServiceBindings,
   PasswordHasherBindings,
   TokenServiceBindings,
   UserServiceBindings,
-} from '../keys';
+} from '../components/jwt-authentication/keys';
+import { AuthorizeServiceBindings } from '../components/authorization';
 import { inject } from '@loopback/core';
-import { BcryptHasher } from '../services/hash-password';
-import { JWTService } from '../services/jwt-service'
-import { MyUserProfile } from '../types';
+import { BcryptHasher } from '../components/jwt-authentication/services/hash-password';
+import { JWTService } from '../components/jwt-authentication';
 import { validateCredentials } from '../services/validator'
 import * as _ from 'lodash';
-import { AuthorizeService, DefineRole } from '../services/authorize-service';
+import { AuthorizeService, DefineRole } from '../components/authorization/authorize-service';
 
 export class UserController {
   constructor(
