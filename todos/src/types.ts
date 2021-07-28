@@ -5,5 +5,4 @@ export interface MyUserProfile extends UserProfile {
     username: String;
     projectId: number;
     roleId: number;
-    permissions: number[];
 }

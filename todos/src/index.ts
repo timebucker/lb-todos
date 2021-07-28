@@ -1,9 +1,15 @@
+import { createBindingFromClass } from '@loopback/core';
 import {ApplicationConfig, TodosApplication} from './application';
+import { CronJobProvider } from './cronjob';
 
 export * from './application';
 
 export async function main(options: ApplicationConfig = {}) {
   const app = new TodosApplication(options);
+
+  const jobBinding = createBindingFromClass(CronJobProvider);
+  app.add(jobBinding);
+
   await app.boot();
   await app.start();
 
@@ -37,3 +43,4 @@ if (require.main === module) {
     process.exit(1);
   });
 }
+

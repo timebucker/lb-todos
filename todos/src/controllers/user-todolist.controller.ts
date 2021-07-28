@@ -24,15 +24,21 @@ import {
 import { UserRepository} from '../repositories';
 import { MyUserProfile } from '../types';
 import {SecurityBindings} from '@loopback/security';
-import { DefinePermission, DefineRole } from '../services/authorize-service';
+import { AuthorizeService, DefineAuthorizeAction, DefinePermission, DefineRole } from '../services/authorize-service';
 import { authenticate, AuthenticationBindings } from '@loopback/authentication';
+import { AuthorizeServiceBindings } from '../keys';
 
 @authenticate('jwt')
 export class UserTodolistController {
   constructor(
-    @repository(UserRepository) protected userRepository: UserRepository,
+    @repository(UserRepository) 
+    protected userRepository: UserRepository,
+
+    @inject(AuthorizeServiceBindings.AUTRHORIZE_SERVICE) 
+    public authorizeService: AuthorizeService,
     
-    @inject(SecurityBindings.USER) public currentUser: MyUserProfile
+    @inject(SecurityBindings.USER) 
+    public currentUser: MyUserProfile
   ) { }
 
   @get('/users/{id}/todolists', {
@@ -51,89 +57,11 @@ export class UserTodolistController {
     @param.path.number('id') id: number,
     @param.query.object('filter') filter?: Filter<Todolist>,
   ): Promise<Todolist[]> {
-    let queryProjectId = (await this.userRepository.findById(id)).projectId
-
-    let adminIds = (
-      await this.userRepository.find({where: {roleId: DefineRole.Admin}})
-    ).map((admin) => { return Number(admin.id) })
-
-    if (this.currentUser.projectId != queryProjectId) {
-      // user can not view from others project
+    let owner = await this.userRepository.findById(id)
+    let isAllow = await this.authorizeService.shouldAllow(this.currentUser, owner, DefineAuthorizeAction.Read)
+    if (!isAllow) {
       throw new HttpErrors.Forbidden('INVALID ACCESS');
     }
-
-    // process for admin query
-    if (adminIds.includes(id)) {
-      if (this.currentUser.permissions.includes(DefinePermission.ReadAll)) {
-        return this.userRepository.todolists(id).find(filter)
-      } else {
-        throw new HttpErrors.Forbidden('INVALID ACCESS');
-      }
-    }
-
-    return this.userRepository.todolists(id).find(filter);
+    return this.userRepository.todolists(id).find(filter)
   }
-
-  // @post('/users/{id}/todolists', {
-  //   responses: {
-  //     '200': {
-  //       description: 'User model instance',
-  //       content: {'application/json': {schema: getModelSchemaRef(Todolist)}},
-  //     },
-  //   },
-  // })
-  // async create(
-  //   @param.path.number('id') id: typeof User.prototype.id,
-  //   @requestBody({
-  //     content: {
-  //       'application/json': {
-  //         schema: getModelSchemaRef(Todolist, {
-  //           title: 'NewTodolistInUser',
-  //           exclude: ['id'],
-  //           optional: ['userId']
-  //         }),
-  //       },
-  //     },
-  //   }) todolist: Omit<Todolist, 'id'>,
-  // ): Promise<Todolist> {
-  //   return this.userRepository.todolists(id).create(todolist);
-  // }
-
-  // @patch('/users/{id}/todolists', {
-  //   responses: {
-  //     '200': {
-  //       description: 'User.Todolist PATCH success count',
-  //       content: {'application/json': {schema: CountSchema}},
-  //     },
-  //   },
-  // })
-  // async patch(
-  //   @param.path.number('id') id: number,
-  //   @requestBody({
-  //     content: {
-  //       'application/json': {
-  //         schema: getModelSchemaRef(Todolist, {partial: true}),
-  //       },
-  //     },
-  //   })
-  //   todolist: Partial<Todolist>,
-  //   @param.query.object('where', getWhereSchemaFor(Todolist)) where?: Where<Todolist>,
-  // ): Promise<Count> {
-  //   return this.userRepository.todolists(id).patch(todolist, where);
-  // }
-
-  // @del('/users/{id}/todolists', {
-  //   responses: {
-  //     '200': {
-  //       description: 'User.Todolist DELETE success count',
-  //       content: {'application/json': {schema: CountSchema}},
-  //     },
-  //   },
-  // })
-  // async delete(
-  //   @param.path.number('id') id: number,
-  //   @param.query.object('where', getWhereSchemaFor(Todolist)) where?: Where<Todolist>,
-  // ): Promise<Count> {
-  //   return this.userRepository.todolists(id).delete(where);
-  // }
 }

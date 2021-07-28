@@ -47,19 +47,7 @@ export class MyUserService implements UserService<User, Credentials> {
       username: user.username,
       projectId: user.projectId,
       id: user.id!,
-      roleId: user.roleId,
-      permissions: []
+      roleId: user.roleId
     };
   }
-
-  // convertToUserProfile(user: User): MyUserProfile {
-  //   return {
-  //     [securityId]: user.id!.toString(),
-  //     username: user.username,
-  //     id: user.id!,
-  //     roleId: user.roleId,
-  //     permissions: rolePermissions(user.roleId)
-  //   };
-  //   // throw new Error('Method not implemented.');
-  // }
 }

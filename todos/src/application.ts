@@ -27,6 +27,7 @@ import {JWTService} from './services/jwt-service';
 import { MyUserService } from './services/user-service';
 import { JWTStrategy } from './auth-strategies/jwt-strategy';
 import { AuthorizeService } from './services/authorize-service';
+import {CronComponent} from '@loopback/cron';
 
 export {ApplicationConfig};
 
@@ -65,6 +66,7 @@ export class TodosApplication extends BootMixin(
     this.component(AuthenticationComponent);
     // Mount jwt component
     // this.component(JWTAuthenticationComponent);
+    this.component(CronComponent);
 
     registerAuthenticationStrategy(this, JWTStrategy);
 

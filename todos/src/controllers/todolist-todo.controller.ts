@@ -23,15 +23,19 @@ import {
   Todolist,
   Todo,
 } from '../models';
-import { TodolistRepository } from '../repositories';
-import { AuthorizeService, DefinePermission } from '../services';
+import { TodolistRepository, UserRepository } from '../repositories';
+import { AuthorizeService, DefineAuthorizeAction, DefinePermission } from '../services';
 import { MyUserProfile } from '../types';
 
 @authenticate('jwt')
 export class TodolistTodoController {
-  userRepository: any;
+  // userRepository: any;
   constructor(
     @repository(TodolistRepository) protected todolistRepository: TodolistRepository,
+
+    @repository(UserRepository) protected userRepository: UserRepository,
+
+    @inject(AuthorizeServiceBindings.AUTRHORIZE_SERVICE) public authorizeService: AuthorizeService,
 
     @inject(AuthenticationBindings.CURRENT_USER) public currentUser: MyUserProfile
   ) { }
@@ -52,18 +56,7 @@ export class TodolistTodoController {
     @param.path.number('id') id: number,
     @param.query.object('filter') filter?: Filter<Todo>,
   ): Promise<Todo[]> {
-    let todolist = await this.todolistRepository.findById(id)
-    let owner = await this.userRepository.findById(String(todolist.userId))
-    if (this.currentUser.projectId != owner.projectId
-      || !this.currentUser.permissions.includes(DefinePermission.WriteAll)
-    ) {
-      throw new HttpErrors.Forbidden('INVALID ACCESS');
-    }
-
-    if (todolist.userId != this.currentUser.id) {
-      throw new HttpErrors.Forbidden('INVALID ACCESS');
-    }
-
+    this.authorizeRequest(id, DefineAuthorizeAction.Read)
     return this.todolistRepository.todos(id).find(filter);
   }
 
@@ -76,56 +69,22 @@ export class TodolistTodoController {
     },
   })
   async create(
-    @inject(AuthenticationBindings.CURRENT_USER) currentUser: MyUserProfile,
     @param.path.number('id') id: typeof Todolist.prototype.id,
     @requestBody({
       content: {
         'application/json': {
           schema: getModelSchemaRef(Todo, {
             title: 'NewTodoInTodolist',
-            exclude: ['id', 'todolistId']
-            // optional: ['todolistId']
+            exclude: ['id', 'todolistId'],
+            optional: ['linkProjectId']
           }),
         },
       },
     }) todo: Omit<Todo, 'id' | 'todolistId'>,
   ): Promise<Todo> {
-    let todolist = await this.todolistRepository.findById(id)
-    let owner = await this.userRepository.findById(String(todolist.userId))
-    if (this.currentUser.projectId != owner.projectId
-      || !this.currentUser.permissions.includes(DefinePermission.WriteAll)
-    ) {
-      throw new HttpErrors.Forbidden('INVALID ACCESS');
-    }
-
-    if (todolist.userId != this.currentUser.id) {
-      throw new HttpErrors.Forbidden('INVALID ACCESS');
-    }
+    this.authorizeRequest(Number(id), DefineAuthorizeAction.Write)
     return this.todolistRepository.todos(id).create(todo);
   }
-
-  // @patch('/todolists/{id}/todos', {
-  //   responses: {
-  //     '200': {
-  //       description: 'Todolist.Todo PATCH success count',
-  //       content: {'application/json': {schema: CountSchema}},
-  //     },
-  //   },
-  // })
-  // async patch(
-  //   @param.path.number('id') id: number,
-  //   @requestBody({
-  //     content: {
-  //       'application/json': {
-  //         schema: getModelSchemaRef(Todo, {partial: true}),
-  //       },
-  //     },
-  //   })
-  //   todo: Partial<Todo>,
-  //   @param.query.object('where', getWhereSchemaFor(Todo)) where?: Where<Todo>,
-  // ): Promise<Count> {
-  //   return this.todolistRepository.todos(id).patch(todo, where);
-  // }
 
   @del('/todolists/{id}/todos', {
     responses: {
@@ -140,17 +99,16 @@ export class TodolistTodoController {
     @param.path.number('id') id: number,
     @param.query.object('where', getWhereSchemaFor(Todo)) where?: Where<Todo>,
   ): Promise<Count> {
-    let todolist = await this.todolistRepository.findById(id)
-    let owner = await this.userRepository.findById(String(todolist.userId))
-    if (!this.currentUser.permissions.includes(DefinePermission.WriteAll)
-      || !this.currentUser.projectId == owner.projectId) {
-      throw new HttpErrors.Forbidden('INVALID ACCESS');
-    }
-
-    if (todolist.userId != this.currentUser.id) {
-      throw new HttpErrors.Forbidden('INVALID ACCESS');
-    }
-
+    this.authorizeRequest(id, DefineAuthorizeAction.Write)
     return this.todolistRepository.todos(id).delete(where);
+  }
+
+  async authorizeRequest(todoListId: number, action: DefineAuthorizeAction) {
+    let todolist = await this.todolistRepository.findById(todoListId)
+    let owner = await this.userRepository.findById(todolist.userId)
+    let isAllow = await this.authorizeService.shouldAllow(this.currentUser, owner, action)
+    if (!isAllow) {
+      throw new HttpErrors.Forbidden('INVALID ACCESS');
+    }
   }
 }

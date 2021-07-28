@@ -1,6 +1,6 @@
 {
   "ids": {
-    "Todo": 0,
+    "Todo": 4,
     "Project": 2,
     "Role": 2,
     "User": 6,
@@ -23,7 +23,9 @@
       "4": "{\"username\":\"user22\",\"password\":\"$2a$10$h.D.r/LkGSfmLKK4xNYU6OHLZROOktcDuDhiwWc3kvVF4o5nKGmn.\",\"roleId\":0,\"projectId\":1,\"id\":4}",
       "5": "{\"username\":\"user12\",\"password\":\"$2a$10$Q/o60AUPHYnqIaGN75vH9.5Hj18cbtTYsB/phhGyoBVd1MpWNO1G6\",\"roleId\":0,\"projectId\":0,\"id\":5}"
     },
-    "Todo": {},
+    "Todo": {
+      "0": "{\"title\":\"user1-td\",\"isCompleted\":false,\"description\":\"desc\",\"todolistId\":1,\"id\":0}"
+    },
     "Todolist": {
       "0": "{\"title\":\"admin1-tdl\",\"userId\":0,\"id\":0}",
       "1": "{\"title\":\"user1-tdl\",\"userId\":1,\"id\":1}",
